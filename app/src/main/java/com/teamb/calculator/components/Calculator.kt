@@ -93,7 +93,7 @@ fun Calculator(
                 ) {
 
                     Text(
-                        text = state.number1 + state.operation?.operator.orEmpty() + state.number2,
+                        text = state.expression + state.currentNumber,
                         style = MaterialTheme.typography.displayLarge,
                         maxLines = 3,
                         modifier = Modifier
