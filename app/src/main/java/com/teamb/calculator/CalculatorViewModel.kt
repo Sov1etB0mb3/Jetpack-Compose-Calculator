@@ -4,13 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.teamb.calculator.action.CalculatorAction
 import com.teamb.calculator.action.CalculatorOperation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 class CalculatorViewModel : ViewModel() {
 
@@ -19,74 +14,145 @@ class CalculatorViewModel : ViewModel() {
 
     fun onAction(action: CalculatorAction) {
         when (action) {
-            CalculatorAction.Calculate -> performCalculation()
-            CalculatorAction.Clear -> performClear()
-            CalculatorAction.Decimal -> onDecimal()
+            CalculatorAction.Calculate -> performCalculate()
+            CalculatorAction.Clear -> state = CalculatorState()
+            CalculatorAction.Decimal -> performDecimal()
             CalculatorAction.Delete -> performDelete()
-            is CalculatorAction.Number -> onNumber(action.number)
-            is CalculatorAction.Operation -> onOperation(action.operation)
+            CalculatorAction.OpenParen -> performOpenParen()
+            CalculatorAction.CloseParen -> performCloseParen()
+            is CalculatorAction.Number -> performNumber(action.number)
+            is CalculatorAction.Operation -> performOperation(action.operation)
         }
     }
 
-    private fun onOperation(operation: CalculatorOperation) {
-        if (state.operation == null && state.number1.isNotBlank()) {
-            state = state.copy(operation = operation)
-        }
+    private fun performNumber(number: Int) {
+        if (state.hasResult) state = CalculatorState()
+        state = state.copy(currentNumber = state.currentNumber.plus(number.toString()))
     }
 
-    private fun onNumber(number: Int) {
-        state = if (state.operation == null) {
-            state.copy(
-                number1 = state.number1.plus(number)
-            )
-        } else {
-            state.copy(
-                number2 = state.number2.plus(number)
-            )
-        }
+    private fun performOperation(op: CalculatorOperation) {
+        val expr = state.expression + state.currentNumber
+        val stripped = if (expr.endsWith("+") || expr.endsWith("-") ||
+            expr.endsWith("x") || expr.endsWith("/")
+        ) expr.dropLast(1) + op.operator else expr + op.operator
+        state = state.copy(expression = stripped, currentNumber = "")
+    }
 
+    private fun performDecimal() {
+        if (state.currentNumber.contains(".")) return
+        state = state.copy(
+            currentNumber = if (state.currentNumber.isEmpty()) "0."
+            else state.currentNumber.plus(".")
+        )
     }
 
     private fun performDelete() {
-        if (state.operation == null && state.number1.isNotBlank()) {
-            state = state.copy(number1 = state.number1.dropLast(1))
-            return
-        } else if (state.number2.isNotBlank()) {
-            state = state.copy(number2 = state.number2.dropLast(1))
-            return
-        } else {
-            state = state.copy(operation = null)
+        when {
+            state.currentNumber.isNotEmpty() ->
+                state = state.copy(currentNumber = state.currentNumber.dropLast(1))
+            state.expression.isNotEmpty() ->
+                state = state.copy(expression = state.expression.dropLast(1))
         }
     }
 
-    private fun onDecimal() {
-        if (state.operation == null && state.number1.isNotBlank() && !state.number1.contains(".")) {
-            state = state.copy(number1 = state.number1.plus("."))
-            return
-        }
+    private fun performOpenParen() {
+        state = state.copy(
+            expression = state.expression + state.currentNumber + "(",
+            currentNumber = ""
+        )
+    }
 
-        if (state.number2.isNotBlank() && !state.number2.contains(".")) {
-            state = state.copy(number2 = state.number2.plus("."))
-            return
+    private fun performCloseParen() {
+        state = state.copy(
+            expression = state.expression + state.currentNumber + ")",
+            currentNumber = ""
+        )
+    }
+
+    private fun performCalculate() {
+        val expr = state.expression + state.currentNumber
+        if (expr.isBlank()) return
+        val evaluated = evaluate(expr)
+        if (evaluated != null) {
+            state = CalculatorState(
+                expression = evaluated.toString().take(10),
+                hasResult = true
+            )
         }
     }
 
-    private fun performClear() {
-        state = CalculatorState()
+    private fun evaluate(expr: String): Double? = try {
+        parse(tokenize(expr))
+    } catch (_: Exception) {
+        null
     }
 
-    private fun performCalculation() {
-        var num1 = state.number1.toDoubleOrNull()
-        val num2 = state.number2.toDoubleOrNull()
-        if (num1 != null && num2 != null && state.operation != null) {
-            when (state.operation) {
-                CalculatorOperation.Add -> num1 += num2
-                CalculatorOperation.Divide -> num1 /= num2
-                CalculatorOperation.Multiply -> num1 *= num2
-                CalculatorOperation.Subtract -> num1 -= num2
-                null -> num1 = 0.0
+    private fun tokenize(expr: String): List<String> {
+        val tokens = mutableListOf<String>()
+        var i = 0
+        while (i < expr.length) {
+            val c = expr[i]
+            when {
+                c.isDigit() || c == '.' -> {
+                    val start = i
+                    while (i < expr.length && (expr[i].isDigit() || expr[i] == '.')) i++
+                    tokens.add(expr.substring(start, i))
+                }
+                else -> {
+                    tokens.add(c.toString())
+                    i++
+                }
             }
         }
-        state = CalculatorState(number1 = num1.toString().take(10))
+        return tokens
+    }
+
+    private fun parse(tokens: List<String>): Double {
+        val iter = tokens.listIterator()
+        val result = parseExpr(iter)
+        if (iter.hasNext()) throw IllegalArgumentException()
+        return result
+    }
+
+    private fun parseExpr(iter: ListIterator<String>): Double {
+        var result = parseTerm(iter)
+        while (iter.hasNext()) {
+            val op = iter.next()
+            if (op == "+" || op == "-") {
+                val right = parseTerm(iter)
+                result = if (op == "+") result + right else result - right
+            } else {
+                iter.previous()
+                break
+            }
+        }
+        return result
+    }
+
+    private fun parseTerm(iter: ListIterator<String>): Double {
+        var result = parseFactor(iter)
+        while (iter.hasNext()) {
+            val op = iter.next()
+            if (op == "x" || op == "*" || op == "/") {
+                val right = parseFactor(iter)
+                result = if (op == "/") result / right else result * right
+            } else {
+                iter.previous()
+                break
+            }
+        }
+        return result
+    }
+
+    private fun parseFactor(iter: ListIterator<String>): Double {
+        val token = iter.next()
+        return when (token) {
+            "(" -> {
+                val inner = parseExpr(iter)
+                if (!iter.hasNext() || iter.next() != ")") throw IllegalArgumentException()
+                inner
+            }
+            else -> token.toDouble()
+        }
     }
 }
