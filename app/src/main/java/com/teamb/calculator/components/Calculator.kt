@@ -130,7 +130,7 @@ fun Calculator(
                             }
                         }
 
-                        // Row 2: 7, 8, 9, x
+                        // Row 2: 7, 8, 9, *
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
@@ -144,7 +144,7 @@ fun Calculator(
                             CalculatorButton(symbol = "9", modifier = Modifier.aspectRatio(1f).weight(1f)) {
                                 onAction(CalculatorAction.Number(9))
                             }
-                            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) {
+                            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) {
                                 onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
                             }
                         }
