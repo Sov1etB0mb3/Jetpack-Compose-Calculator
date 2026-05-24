@@ -33,7 +33,7 @@ class CalculatorViewModel : ViewModel() {
     private fun performOperation(op: CalculatorOperation) {
         val expr = state.expression + state.currentNumber
         val stripped = if (expr.endsWith("+") || expr.endsWith("-") ||
-            expr.endsWith("x") || expr.endsWith("/")
+            expr.endsWith("*") || expr.endsWith("/")
         ) expr.dropLast(1) + op.operator else expr + op.operator
         state = state.copy(expression = stripped, currentNumber = "")
     }
@@ -82,7 +82,7 @@ class CalculatorViewModel : ViewModel() {
     }
 
     private fun evaluate(expr: String): Double? = try {
-        parse(tokenize(expr))
+        evalPostfix(infixToPostfix(tokenize(expr)))
     } catch (_: Exception) {
         null
     }
@@ -107,52 +107,54 @@ class CalculatorViewModel : ViewModel() {
         return tokens
     }
 
-    private fun parse(tokens: List<String>): Double {
-        val iter = tokens.listIterator()
-        val result = parseExpr(iter)
-        if (iter.hasNext()) throw IllegalArgumentException()
-        return result
+    private fun precedence(op: String): Int = when (op) {
+        "+", "-" -> 1
+        "*", "/" -> 2
+        else -> 0
     }
 
-    private fun parseExpr(iter: ListIterator<String>): Double {
-        var result = parseTerm(iter)
-        while (iter.hasNext()) {
-            val op = iter.next()
-            if (op == "+" || op == "-") {
-                val right = parseTerm(iter)
-                result = if (op == "+") result + right else result - right
+    private fun infixToPostfix(tokens: List<String>): List<String> {
+        val output = mutableListOf<String>()
+        val ops = mutableListOf<String>()
+        for (token in tokens) {
+            when {
+                token.toDoubleOrNull() != null -> output.add(token)
+                token == "(" -> ops.add(token)
+                token == ")" -> {
+                    while (ops.isNotEmpty() && ops.last() != "(")
+                        output.add(ops.removeLast())
+                    if (ops.isNotEmpty()) ops.removeLast()
+                }
+                else -> {
+                    while (ops.isNotEmpty() && ops.last() != "("
+                        && precedence(ops.last()) >= precedence(token))
+                        output.add(ops.removeLast())
+                    ops.add(token)
+                }
+            }
+        }
+        while (ops.isNotEmpty()) output.add(ops.removeLast())
+        return output
+    }
+
+    private fun evalPostfix(postfix: List<String>): Double {
+        val stack = mutableListOf<Double>()
+        for (token in postfix) {
+            val num = token.toDoubleOrNull()
+            if (num != null) {
+                stack.add(num)
             } else {
-                iter.previous()
-                break
+                val right = stack.removeLast()
+                val left = stack.removeLast()
+                stack.add(when (token) {
+                    "+" -> left + right
+                    "-" -> left - right
+                    "*" -> left * right
+                    "/" -> left / right
+                    else -> throw IllegalArgumentException()
+                })
             }
         }
-        return result
-    }
-
-    private fun parseTerm(iter: ListIterator<String>): Double {
-        var result = parseFactor(iter)
-        while (iter.hasNext()) {
-            val op = iter.next()
-            if (op == "x" || op == "*" || op == "/") {
-                val right = parseFactor(iter)
-                result = if (op == "/") result / right else result * right
-            } else {
-                iter.previous()
-                break
-            }
-        }
-        return result
-    }
-
-    private fun parseFactor(iter: ListIterator<String>): Double {
-        val token = iter.next()
-        return when (token) {
-            "(" -> {
-                val inner = parseExpr(iter)
-                if (!iter.hasNext() || iter.next() != ")") throw IllegalArgumentException()
-                inner
-            }
-            else -> token.toDouble()
-        }
+        return stack.single()
     }
 }

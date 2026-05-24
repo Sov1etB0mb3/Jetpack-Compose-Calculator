@@ -57,7 +57,7 @@ fun AdvancedCalculatorPanel(
             CalculatorButton(symbol = "/", modifier = Modifier.aspectRatio(1f).weight(1f)) {
                 onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
             }
-            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) {
+            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) {
                 onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
             }
         }
