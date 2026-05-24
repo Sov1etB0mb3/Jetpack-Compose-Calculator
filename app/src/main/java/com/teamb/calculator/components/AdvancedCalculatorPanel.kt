@@ -79,7 +79,7 @@ fun AdvancedCalculatorPanel(
                 onAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
             }
             CalculatorButton(symbol = "(", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                // TODO: Implement logic here
+                onAction(CalculatorAction.OpenParen)
             }
         }
         // Row 4: 4, 5, 6, +, )
@@ -100,7 +100,7 @@ fun AdvancedCalculatorPanel(
                 onAction(CalculatorAction.Operation(CalculatorOperation.Add))
             }
             CalculatorButton(symbol = ")", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                // TODO: Implement logic here
+                onAction(CalculatorAction.CloseParen)
             }
         }
         // Row 5: [ICON], 0, ., =, %
