@@ -8,6 +8,8 @@ A fully functional calculator app built with Jetpack Compose, following modern A
 - Clean, Material Design 3 UI built entirely with Jetpack Compose
 - State managed via ViewModel — survives configuration changes
 - Supports chained operations and decimal inputs
+- Trigonometry function, factorial, square and square root (updated)
+- Able to keep the expression after calculation and prepare for the upcomming calculation
 
 ## 🛠 Tech Stack
 
@@ -29,9 +31,13 @@ A fully functional calculator app built with Jetpack Compose, following modern A
    ```bash
    git clone https://github.com/santhoshj001/Jetpack-Compose-Calculator.git
    ```
-2. Open in **Android Studio Hedgehog** or later
-3. Let Gradle sync
-4. Run on an emulator or physical device (API 21+)
+2. Install JDK 21
+3. Open in **Android Studio Hedgehog** or later
+4. Change AGP to 8.2.2 and Gradle to 8.5
+5. ![Uploading image.png…]()
+
+6. Let Gradle sync
+7. Run on an emulator or physical device (API 21+)
 
 ## 📄 License
 
