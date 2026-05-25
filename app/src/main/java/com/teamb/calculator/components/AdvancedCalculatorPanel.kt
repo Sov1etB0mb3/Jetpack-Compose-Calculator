@@ -55,7 +55,7 @@ fun AdvancedCalculatorPanel(
             CalculatorButton(symbol = "4", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(4)) }
             CalculatorButton(symbol = "5", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(5)) }
             CalculatorButton(symbol = "6", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(6)) }
-            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
+            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
                 handleAction(CalculatorAction.Operation(CalculatorOperation.Multiply)) 
             }
             CalculatorButton(symbol = "-", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
