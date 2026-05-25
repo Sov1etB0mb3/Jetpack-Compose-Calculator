@@ -26,18 +26,18 @@ fun AdvancedCalculatorPanel(
     ) {
         // Hàng 1: sin, cos, tan, √, x²
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-            CalculatorButton(symbol = "sin", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "cos", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "tan", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "√", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "x²", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
+            CalculatorButton(symbol = "sin", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Sin) }
+            CalculatorButton(symbol = "cos", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Cos) }
+            CalculatorButton(symbol = "tan", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Tan) }
+            CalculatorButton(symbol = "√", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Sqrt) }
+            CalculatorButton(symbol = "x²", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Square) }
         }
-        // Hàng 2: π, (, ), %, /
+        // Hàng 2: π, (, ), !, /
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-            CalculatorButton(symbol = "π", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "(", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = ")", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
-            CalculatorButton(symbol = "%", modifier = Modifier.aspectRatio(1f).weight(1f)) { /* TODO */ }
+            CalculatorButton(symbol = "π", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Pi) }
+            CalculatorButton(symbol = "(", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.OpenParen) }
+            CalculatorButton(symbol = ")", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.CloseParen) }
+            CalculatorButton(symbol = "!", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Factorial) }
             CalculatorButton(symbol = "/", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
                 handleAction(CalculatorAction.Operation(CalculatorOperation.Divide)) 
             }
@@ -55,7 +55,7 @@ fun AdvancedCalculatorPanel(
             CalculatorButton(symbol = "4", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(4)) }
             CalculatorButton(symbol = "5", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(5)) }
             CalculatorButton(symbol = "6", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(6)) }
-            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
+            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) { 
                 handleAction(CalculatorAction.Operation(CalculatorOperation.Multiply)) 
             }
             CalculatorButton(symbol = "-", modifier = Modifier.aspectRatio(1f).weight(1f)) { 

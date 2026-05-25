@@ -161,7 +161,7 @@ fun StandardPanel(
             CalculatorButton(symbol = "7", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(7)) }
             CalculatorButton(symbol = "8", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(8)) }
             CalculatorButton(symbol = "9", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(9)) }
-            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Multiply)) }
+            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Multiply)) }
         }
         // Hàng 3: 4, 5, 6, -
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
