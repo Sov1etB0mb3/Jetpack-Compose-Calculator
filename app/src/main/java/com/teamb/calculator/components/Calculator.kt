@@ -1,5 +1,10 @@
 package com.teamb.calculator.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -33,16 +38,20 @@ fun Calculator(
         isDarkMode = systemInDark
     }
 
+    // Tối ưu hiệu năng: Memoize các callbacks chính
+    val handleAction = remember(onAction) { { action: CalculatorAction -> onAction(action) } }
+    val toggleExpand = remember { { isExpanded = !isExpanded } }
+
     CalculatorTheme(darkTheme = isDarkMode) {
-        // Surface giúp áp dụng màu nền từ Theme (background)
+        // Sử dụng Surface bao phủ toàn bộ vùng modifier được truyền vào
         Surface(
             modifier = modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Box(modifier = Modifier.padding(16.dp)) {
-                // 1. Nút Cài đặt ở góc trái trên cùng
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 var showMenu by remember { mutableStateOf(false) }
                 
+                // Hàng nút Settings
                 Row(
                     modifier = Modifier.fillMaxWidth().align(Alignment.TopStart),
                     horizontalArrangement = Arrangement.Start
@@ -55,8 +64,6 @@ fun Calculator(
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
-                        
-                        // 2. Menu Cài đặt (DropdownMenu)
                         DropdownMenu(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false }
@@ -72,26 +79,23 @@ fun Calculator(
                                         )
                                     }
                                 },
-                                onClick = { /* Switch đã xử lý logic */ }
+                                onClick = { }
                             )
                             DropdownMenuItem(
                                 text = { Text("Lịch sử tính toán") },
-                                onClick = {
-                                    // TODO: Implement History logic
-                                    showMenu = false
-                                }
+                                onClick = { showMenu = false }
                             )
                         }
                     }
                 }
 
+                // Khu vực hiển thị kết quả và bàn phím
                 Column(
                     Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter),
                     verticalArrangement = Arrangement.spacedBy(buttonSpacing)
                 ) {
-
                     Text(
                         text = state.expression + state.currentNumber,
                         style = MaterialTheme.typography.displayLarge,
@@ -103,109 +107,82 @@ fun Calculator(
                         color = MaterialTheme.colorScheme.onBackground
                     )
 
-                    if (isExpanded) {
-                        AdvancedCalculatorPanel(
-                            onAction = onAction,
-                            onExpandToggle = { isExpanded = !isExpanded },
-                            buttonSpacing = buttonSpacing
-                        )
-                    } else {
-                        // Standard 4-column Layout
-                        // Row 1: AC, Del, ALT (Star icon), /
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
+                    // Sử dụng AnimatedContent để chuyển đổi layout mượt mà
+                    AnimatedContent(
+                        targetState = isExpanded,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith 
+                            fadeOut(animationSpec = tween(300))
+                        },
+                        label = "LayoutSwitch"
+                    ) { expanded ->
+                        // Đảm bảo container bao quanh lưới nút bấm sử dụng màu nền động của hệ thống
+                        Surface(
+                            color = MaterialTheme.colorScheme.background,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            CalculatorButton(symbol = "AC", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Clear)
+                            if (expanded) {
+                                AdvancedCalculatorPanel(
+                                    onAction = handleAction,
+                                    onExpandToggle = toggleExpand,
+                                    buttonSpacing = buttonSpacing
+                                )
+                            } else {
+                                StandardPanel(
+                                    onAction = handleAction,
+                                    onExpandToggle = toggleExpand,
+                                    buttonSpacing = buttonSpacing
+                                )
                             }
-                            CalculatorButton(symbol = "Del", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Delete)
-                            }
-                            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                isExpanded = !isExpanded
-                            }
-                            CalculatorButton(symbol = "/", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
-                            }
-                        }
-
-                        // Row 2: 7, 8, 9, *
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                        ) {
-                            CalculatorButton(symbol = "7", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(7))
-                            }
-                            CalculatorButton(symbol = "8", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(8))
-                            }
-                            CalculatorButton(symbol = "9", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(9))
-                            }
-                            CalculatorButton(symbol = "*", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
-                            }
-                        }
-
-                        // Row 3: 4, 5, 6, -
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                        ) {
-                            CalculatorButton(symbol = "4", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(4))
-                            }
-                            CalculatorButton(symbol = "5", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(5))
-                            }
-                            CalculatorButton(symbol = "6", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(6))
-                            }
-                            CalculatorButton(symbol = "-", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
-                            }
-                        }
-
-                        // Row 4: 1, 2, 3, +
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                        ) {
-                            CalculatorButton(symbol = "1", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(1))
-                            }
-                            CalculatorButton(symbol = "2", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(2))
-                            }
-                            CalculatorButton(symbol = "3", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(3))
-                            }
-                            CalculatorButton(symbol = "+", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Operation(CalculatorOperation.Add))
-                            }
-                        }
-
-                        // Row 5: 0, ., =, (Spacer)
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                        ) {
-                            CalculatorButton(symbol = "0", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Number(0))
-                            }
-                            CalculatorButton(symbol = ".", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Decimal)
-                            }
-                            CalculatorButton(symbol = "=", modifier = Modifier.aspectRatio(1f).weight(1f)) {
-                                onAction(CalculatorAction.Calculate)
-                            }
-                            Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun StandardPanel(
+    onAction: (CalculatorAction) -> Unit,
+    onExpandToggle: () -> Unit,
+    buttonSpacing: Dp
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+        // Hàng 1: AC, Del, ALT, /
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+            CalculatorButton(symbol = "AC", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Clear) }
+            CalculatorButton(symbol = "Del", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Delete) }
+            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f)) { onExpandToggle() }
+            CalculatorButton(symbol = "/", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Divide)) }
+        }
+        // Hàng 2: 7, 8, 9, *
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+            CalculatorButton(symbol = "7", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(7)) }
+            CalculatorButton(symbol = "8", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(8)) }
+            CalculatorButton(symbol = "9", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(9)) }
+            CalculatorButton(symbol = "x", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Multiply)) }
+        }
+        // Hàng 3: 4, 5, 6, -
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+            CalculatorButton(symbol = "4", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(4)) }
+            CalculatorButton(symbol = "5", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(5)) }
+            CalculatorButton(symbol = "6", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(6)) }
+            CalculatorButton(symbol = "-", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Subtract)) }
+        }
+        // Hàng 4: 1, 2, 3, +
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+            CalculatorButton(symbol = "1", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(1)) }
+            CalculatorButton(symbol = "2", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(2)) }
+            CalculatorButton(symbol = "3", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(3)) }
+            CalculatorButton(symbol = "+", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Add)) }
+        }
+        // Hàng 5: 0, ., =
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+            CalculatorButton(symbol = "0", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Number(0)) }
+            CalculatorButton(symbol = ".", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Decimal) }
+            CalculatorButton(symbol = "=", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Calculate) }
+            Spacer(Modifier.weight(1f))
         }
     }
 }
