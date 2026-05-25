@@ -9,6 +9,7 @@ A fully functional calculator app built with Jetpack Compose, following modern A
 - State managed via ViewModel — survives configuration changes
 - Supports chained operations and decimal inputs
 - Trigonometry function, factorial, square and square root (updated)
+- Light and Dark theme is available now!
 - Able to keep the expression after calculation and prepare for the upcomming calculation
 
 ## 🛠 Tech Stack
