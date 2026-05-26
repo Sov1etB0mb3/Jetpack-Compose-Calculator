@@ -145,4 +145,13 @@ class CalculatorIntegrationTest {
         composeTestRule.onNodeWithText("=").performClick()
         assertDisplay("27.0")
     }
+    @Test
+    fun clear() {
+        composeTestRule.onNodeWithText("7").performClick()
+        composeTestRule.onNodeWithText("+").performClick()
+        composeTestRule.onNodeWithText("3").performClick()
+        composeTestRule.onNodeWithText("AC").performClick()
+        assertDisplay("")
+    }
+
 }
