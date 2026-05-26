@@ -103,7 +103,28 @@ class CalculatorIntegrationTest {
         composeTestRule.onNodeWithText("=").performClick()
         assertDisplay("0.5")
     }
+    @Test
+    fun cos() {
+        composeTestRule.onNodeWithContentDescription("Expand").performClick()
+        composeTestRule.onNodeWithText("cos").performClick()
+        composeTestRule.onNodeWithText("9").performClick()
+        composeTestRule.onNodeWithText("0").performClick()
+        composeTestRule.onNodeWithText(")").performClick()
+        composeTestRule.onNodeWithText("=").performClick()
+//        composeTestRule.onNodeWithTag("Result").assertTextEquals("0.0")
+        assertDisplay("0.0")
+    }
 
+    @Test
+    fun tan() {
+        composeTestRule.onNodeWithContentDescription("Expand").performClick()
+        composeTestRule.onNodeWithText("tan").performClick()
+        composeTestRule.onNodeWithText("4").performClick()
+        composeTestRule.onNodeWithText("5").performClick()
+        composeTestRule.onNodeWithText(")").performClick()
+        composeTestRule.onNodeWithText("=").performClick()
+        assertDisplay("1.0")
+    }
     @Test
     fun sqrt() {
         composeTestRule.onNodeWithContentDescription("Expand", substring = true).performClick()
