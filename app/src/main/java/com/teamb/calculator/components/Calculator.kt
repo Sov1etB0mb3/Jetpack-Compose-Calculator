@@ -15,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.teamb.calculator.CalculatorState
@@ -102,7 +104,8 @@ fun Calculator(
                         maxLines = 3,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 32.dp),
+                            .padding(vertical = 32.dp)
+                            .semantics { testTag = "Result" },
                         textAlign = TextAlign.End,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -153,7 +156,7 @@ fun StandardPanel(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
             CalculatorButton(symbol = "AC", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Clear) }
             CalculatorButton(symbol = "Del", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Delete) }
-            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f)) { onExpandToggle() }
+            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f), contentDescription = "Expand") { onExpandToggle() }
             CalculatorButton(symbol = "/", modifier = Modifier.aspectRatio(1f).weight(1f)) { onAction(CalculatorAction.Operation(CalculatorOperation.Divide)) }
         }
         // Hàng 2: 7, 8, 9, *

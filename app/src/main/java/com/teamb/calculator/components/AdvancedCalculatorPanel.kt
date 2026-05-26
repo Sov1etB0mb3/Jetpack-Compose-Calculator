@@ -74,7 +74,7 @@ fun AdvancedCalculatorPanel(
         }
         // Hàng 6: [ICON], 0, ., (Trống), (Trống)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f)) { handleExpand() }
+            CalculatorButton(icon = Icons.Default.Star, modifier = Modifier.aspectRatio(1f).weight(1f), contentDescription = "Expand") { handleExpand() }
             CalculatorButton(symbol = "0", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Number(0)) }
             CalculatorButton(symbol = ".", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Decimal) }
             Spacer(modifier = Modifier.weight(2f))
