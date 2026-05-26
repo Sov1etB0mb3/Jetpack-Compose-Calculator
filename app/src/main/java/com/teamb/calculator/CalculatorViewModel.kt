@@ -89,8 +89,9 @@ class CalculatorViewModel : ViewModel() {
         if (expr.isBlank()) return
         val evaluated = evaluate(expr)
         if (evaluated != null) {
+            val rounded = Math.round(evaluated * 1e12) / 1e12
             state = CalculatorState(
-                expression = evaluated.toString().take(10),
+                expression = rounded.toString().take(10),
                 hasResult = true
             )
         }
