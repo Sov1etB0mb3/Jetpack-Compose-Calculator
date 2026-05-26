@@ -17,6 +17,7 @@ fun CalculatorButton(
     symbol: String? = null,
     icon: ImageVector? = null,
     modifier: Modifier,
+    contentDescription: String? = null,
     onClick: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
@@ -39,7 +40,7 @@ fun CalculatorButton(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = contentDescription,
                 tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         } else if (symbol != null) {
