@@ -22,19 +22,19 @@ fun CalculatorButton(
 ) {
     val haptic = LocalHapticFeedback.current
     
-    ElevatedButton(
+    // Sử dụng FilledTonalButton thay cho ElevatedButton để tối ưu GPU (không đổ bóng)
+    FilledTonalButton(
         modifier = modifier,
         onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            // Sử dụng TextHandleMove cho cảm giác rung nhẹ và nhạy hơn trên máy cấu hình thấp
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             onClick()
         },
         shape = CircleShape,
-        // 1. Đồng bộ màu sắc với MaterialTheme để hỗ trợ Dark/Light mode tự động
-        colors = ButtonDefaults.elevatedButtonColors(
+        colors = ButtonDefaults.filledTonalButtonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ),
-        // 2. Loại bỏ Padding mặc định để tránh ép chữ trên màn hình nhỏ
         contentPadding = PaddingValues(0.dp)
     ) {
         if (icon != null) {

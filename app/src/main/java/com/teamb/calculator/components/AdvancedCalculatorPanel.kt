@@ -16,7 +16,7 @@ fun AdvancedCalculatorPanel(
     onExpandToggle: () -> Unit,
     buttonSpacing: Dp
 ) {
-    // Tối ưu hiệu năng: Memoize các callbacks
+    // Tối ưu hiệu năng: Memoize các callbacks để tránh recomposition các nút bấm
     val handleAction = remember(onAction) { { action: CalculatorAction -> onAction(action) } }
     val handleExpand = remember(onExpandToggle) { { onExpandToggle() } }
 
@@ -24,7 +24,7 @@ fun AdvancedCalculatorPanel(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(buttonSpacing)
     ) {
-        // Hàng 1: sin, cos, tan, √, x²
+        // Hàng 1: sin, cos, tan, √, x² - Sử dụng weight(1f) đồng nhất để tối ưu Layout CPU
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
             CalculatorButton(symbol = "sin", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Sin) }
             CalculatorButton(symbol = "cos", modifier = Modifier.aspectRatio(1f).weight(1f)) { handleAction(CalculatorAction.Cos) }
